@@ -1,0 +1,33 @@
+pipeline {
+    agent { label 'agent-1' }
+    
+
+
+    parameters {
+        string(name: 'version', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
+
+   
+     }
+    
+    stages {
+
+      stage('downstreamjob') {
+            steps {
+               echo "Deploying the version :$param.version"
+            }
+        }
+
+    }
+    post {
+        always{
+         deleteDir()
+            echo "Workspace cleared"
+            }
+        success {
+            echo "it will work for success"
+        }
+        failure {
+            echo "it will work for failure"
+        }
+    }
+}
