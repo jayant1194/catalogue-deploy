@@ -13,16 +13,13 @@ pipeline {
 
       stage('downstreamjob') {
             steps {
-               echo "Deploying the version :$param.version"
+               echo "Deploying the version :${params.version}"
             }
         }
 
     }
     post {
-        always{
-         deleteDir()
-            echo "Workspace cleared"
-            }
+        
         success {
             echo "it will work for success"
         }
