@@ -1,0 +1,64 @@
+---
+- name: Install Nginx with Rollback
+  hosts: all
+  become: yes
+  tasks:
+    - name: Backup current Nginx version (if exists)
+      shell: |
+        if which nginx; then
+          nginx -v > /tmp/nginx_version_backup.txt
+        fi
+      register: backup_nginx_version
+      ignore_errors: yes
+
+    - block:
+        - name: Install specific version of Nginx on Debian/Ubuntu
+          apt:
+            name: "nginx={{ nginx_version }}"
+            state: present
+          when: ansible_os_family == "Debian"
+
+        - name: Install specific version of Nginx on RHEL/CentOS
+          yum:
+            name: "nginx-{{ nginx_version }}"
+            state: present
+          when: ansible_os_family == "RedHat"
+
+        - name: Start and enable Nginx
+          systemd:
+            name: nginx
+            state: started
+            enabled: yes
+
+        - name: Ensure Nginx is running
+          service:
+            name: nginx
+            state: started
+          
+      rescue:
+        - name: Rollback to previous Nginx version if installation fails
+          debug:
+            msg: "Rolling back to the previous Nginx version."
+        
+        - name: Rollback Nginx to the previous version on Debian/Ubuntu
+          apt:
+            name: "nginx={{ backup_nginx_version.stdout }}"
+            state: present
+          when: ansible_os_family == "Debian" and backup_nginx_version.stdout != ""
+
+        - name: Rollback Nginx to the previous version on RHEL/CentOS
+          yum:
+            name: "nginx-{{ backup_nginx_version.stdout }}"
+            state: present
+          when: ansible_os_family == "RedHat" and backup_nginx_version.stdout != ""
+
+        - name: Restart Nginx after rollback
+          systemd:
+            name: nginx
+            state: restarted
+
+    - name: Ensure Nginx is running after rollback
+      service:
+        name: nginx
+        state: started
+
