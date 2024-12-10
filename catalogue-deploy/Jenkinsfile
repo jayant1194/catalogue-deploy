@@ -1,5 +1,5 @@
 pipeline {
-    agent 
+     agent { label 'agent-1' }
     tools {
         ansible 'ansible'  // Referencing the Ansible installation configured in Global Tool Configuration
     }
@@ -42,7 +42,7 @@ pipeline {
                     ansiblePlaybook(
                         playbook: 'deploy.yml',
                         inventory: 'aws-ec2.yml',
-                        additionalOptions: "--extra-vars \"nginx_version="${params.version}\""
+                        additionalOptions: "--extra-vars \"nginx_version=${params.version}\""
                     )
                 }
             }
