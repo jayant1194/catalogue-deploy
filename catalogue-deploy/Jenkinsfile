@@ -39,11 +39,14 @@ pipeline {
                     '''
                 }
                 script {
-                    ansiblePlaybook(
-                        playbook: 'deploy.yml',
-                        inventory: 'aws-ec2.yml',
-                        additionalOptions: "--extra-vars \"nginx_version=${params.version}\""
-                    )
+                    dir('catalogue'){
+                        ansiblePlaybook(
+                            playbook: 'deploy.yml',
+                            inventory: 'aws-ec2.yml',
+                            additionalOptions: "--extra-vars \"nginx_version=${params.version}\""
+                        
+                        )
+                        }
                 }
             }
         }
