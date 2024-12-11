@@ -38,8 +38,8 @@ pipeline {
                    
                     '''
                 }
-                script {
-                    dir('catalogue'){
+                 script{
+                    dir('catalogue-deploy'){
                         ansiblePlaybook(
                             playbook: 'deploy.yml',
                             inventory: 'aws-ec2.yml',
